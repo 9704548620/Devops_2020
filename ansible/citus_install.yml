@@ -1,0 +1,17 @@
+---
+- name: Install PostgreSQL, Citus, repmgr and pgbouncer
+  hosts: ALL
+  become: yes
+  become_method: sudo
+  roles:
+    - citus_Postgres_install
+#    - postgresql
+#    - { role: citus, when: "'citus' in group_names" }
+
+
+#- name: add replicas to inventory
+#  hosts: ALL 
+#  gather_facts: no
+#
+#  roles:
+#     - citus_install.yml
