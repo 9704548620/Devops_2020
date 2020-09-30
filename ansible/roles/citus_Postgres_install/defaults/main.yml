@@ -1,0 +1,5 @@
+---
+
+url: "https://install.citusdata.com/community/rpm.sh"
+cordinator_data_dir: /var/lib/pgsql/data-12
+postgres_home: /usr/pgsql-12/bin

@@ -43,14 +43,6 @@
   become: yes
   become_user: postgres
 
-- name: update PostgreSQL Config
-  template: src=postgres_conf dest=/var/lib/pgsql/data-12/Coordinator/postgresql.conf
-  register: pgconf
-
-- name: update hbaconf Config
-  template: src=pghba_conf dest=/var/lib/pgsql/data-12/Coordinator/pg_hba.conf
-  register: hbaconf
-
 - name: Start Postgres Instance
   shell: |
     /usr/pgsql-12/bin/pg_ctl -D /var/lib/pgsql/data-12/Coordinator -l coordinator_logfile start
@@ -58,11 +50,3 @@
   become: yes
   become_user: postgres
 
-- name: Create citus extension
-  shell: psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS citus" {{ db_name }}
-
-- name: Add worker in master
-  shell: psql -U postgres -c "SELECT * from master_add_node('{{ item }}', 5432);" {{ db_name }}
-  with_items:
-    - "{{ worker_list }}"
-  when: ansible_host == coordinator
