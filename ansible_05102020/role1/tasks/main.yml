@@ -72,5 +72,5 @@
   shell: psql -U postgres -p 5433 -c "SELECT * from master_add_node('{{ item }}', 5433);" {{ db_name }}
   with_items:
     - "{{ worker }}"
-  when: hosts in coordinator
-    #- hosts == "coordinator" 
+  when: "'coordinator' in group_names"
+  
