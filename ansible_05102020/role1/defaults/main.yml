@@ -1,0 +1,5 @@
+---
+# defaults file for role1
+db_name: "postgres"
+worker: "13.235.132.180"
+#hosts: "13.127.145.223"

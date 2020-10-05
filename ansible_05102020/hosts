@@ -1,0 +1,9 @@
+[all]
+a.a.a.a
+b.b.b.b
+
+[coordinator]
+a.a.a.a
+
+[worker]
+b.b.b.b

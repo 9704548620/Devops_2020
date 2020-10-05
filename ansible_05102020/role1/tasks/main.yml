@@ -1,0 +1,76 @@
+---
+#- name: Download citus install script
+#  get_url:
+#    url: https://install.citusdata.com/community/rpm.sh
+#    dest: /tmp/citus-rpm.sh
+#    mode: 0755
+
+#- name: yum | Setup Citus repository for {{ ansible_distribution }}
+#  shell: /tmp/citus-rpm.sh
+
+#- name: yum | Install Citus
+#  yum:
+#    name: "{{ item }}"
+#    state: installed
+#  with_items:
+#    - citus_12
+#  register: install_postgresql
+#  tags: [db, postgresql]
+
+#- name:  check data directory existed or not
+#  stat:
+#    path: /var/lib/pgsql/data-12
+#  register: my_folder
+
+#- name: "echo if directory already existed"
+#  debug:
+#    msg: "the data directory is already existed"
+#  when: my_folder.stat.exists
+
+#- name: " Create data directory if not exists"
+#  file:
+#    path: /var/lib/pgsql/data-12
+#    state: directory
+#    mode: 0755
+#    group: postgres
+#    owner: postgres
+#  when: my_folder.stat.exists == false
+
+#- name: Initialize Postgres Instance
+#  shell: |
+#    /usr/pgsql-12/bin/initdb -D /var/lib/pgsql/data-12 
+#  register: status
+#  become: yes
+#  become_user: postgres
+
+- name: Update postgresql Config
+  template: src=postgres_conf dest=/var/lib/pgsql/data-12/postgresql.conf
+  register: pgconf
+
+#- name: Update pghba Config
+#  template: src=pghba_conf dest=/var/lib/pgsql/data-12/pghba_conf
+#  register: hbaconf
+
+#- name: add local TRUST for worker node 
+#  lineinfile:
+#    path: /var/lib/pgsql/data-12/pg_hba.conf
+#    line: "{{ item }}"
+#  with_items:
+#    - host    all             all             0.0.0.0/0           trust
+
+#- name: Start Postgres Instance
+#  shell: |
+#    /usr/pgsql-12/bin/pg_ctl -D /var/lib/pgsql/data-12 -l logfile start
+#  register: status
+#  become: yes
+#  become_user: postgres
+
+#- name: Create citus extension
+#  shell: /usr/pgsql-12/bin/psql -U postgres -p 5433  -c "CREATE EXTENSION IF NOT EXISTS citus" {{ db_name }}
+
+- name: Add worker in master
+  shell: psql -U postgres -p 5433 -c "SELECT * from master_add_node('{{ item }}', 5433);" {{ db_name }}
+  with_items:
+    - "{{ worker }}"
+  when: hosts in coordinator
+    #- hosts == "coordinator" 

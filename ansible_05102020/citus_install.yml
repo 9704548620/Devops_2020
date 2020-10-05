@@ -1,0 +1,9 @@
+---
+- name: Install PostgreSQL, Citus, repmgr and pgbouncer
+  hosts: all
+  become: yes
+  become_method: sudo
+#  become_user: pgadmco
+  roles:
+    - role1
+#    - citus_postgres_install 
