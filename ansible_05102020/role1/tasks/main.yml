@@ -19,7 +19,7 @@
 
 - name:  check data directory existed or not
   stat:
-    path: /var/lib/pgsql/data-12
+    path: '{{ data_dir }}'
   register: my_folder
 
 - name: "echo if directory already existed"
@@ -29,7 +29,7 @@
 
 - name: " Create data directory if not exists"
   file:
-    path: /var/lib/pgsql/data-12
+    path: '{{ data_dir }}'
     state: directory
     mode: 0755
     group: postgres
@@ -38,35 +38,35 @@
 
 - name: Initialize Postgres Instance
   shell: |
-    /usr/pgsql-12/bin/initdb -D /var/lib/pgsql/data-12 
+    {{ pg_home }}/initdb -D {{ data_dir }} 
   register: status
   become: yes
   become_user: postgres
 
 - name: Update postgresql Config
-  template: src=postgres_conf dest=/var/lib/pgsql/data-12/postgresql.conf
+  template: src=postgres_conf dest={{ data_dir }}/postgresql.conf
   register: pgconf
 
 #- name: Update pghba Config
-#  template: src=pghba_conf dest=/var/lib/pgsql/data-12/pghba_conf
+#  template: src=pghba_conf dest={{ data_dir }}/pghba_conf
 #  register: hbaconf
 
 - name: add local TRUST for worker node 
   lineinfile:
-    path: /var/lib/pgsql/data-12/pg_hba.conf
+    path: {{ data_dir }}/pg_hba.conf
     line: "{{ item }}"
   with_items:
     - host    all             all             0.0.0.0/0           trust
 
 - name: Start Postgres Instance
   shell: |
-    /usr/pgsql-12/bin/pg_ctl -D /var/lib/pgsql/data-12 -l logfile start
+    {{ pg_home }}/pg_ctl -D {{ data_dir }} -l logfile start
   register: status
   become: yes
   become_user: postgres
 
 - name: Create citus extension
-  shell: /usr/pgsql-12/bin/psql -U postgres -p 5433  -c "CREATE EXTENSION IF NOT EXISTS citus" {{ db_name }}
+  shell: {{ pg_home }}/psql -U postgres -p 5433  -c "CREATE EXTENSION IF NOT EXISTS citus" {{ db_name }}
 
 - name: Add worker in master
   shell: psql -U postgres -p 5433 -c "SELECT * from master_add_node('{{ item }}', 5433);" {{ db_name }}
