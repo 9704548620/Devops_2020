@@ -2,4 +2,6 @@
 # defaults file for role1
 db_name: "postgres"
 worker: "13.235.132.180"
+pg_home: /usr/pgsql-12/bin 
+data_dir: /var/lib/pgsql/data-12
 #hosts: "13.127.145.223"
